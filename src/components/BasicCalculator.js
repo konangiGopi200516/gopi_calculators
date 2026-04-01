@@ -234,6 +234,7 @@ const BasicCalculator = () => {
                 .
               </button>
             </div>
+          </div>
           <div className="mt-4 text-center text-gray-300 text-xs">
             Press keyboard keys for quick input
           </div>
