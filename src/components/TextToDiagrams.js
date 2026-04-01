@@ -27,38 +27,60 @@ const TextToDiagrams = () => {
   };
 
   const generateDiagram = () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim()) {
+      alert('Please enter some text to generate a diagram');
+      return;
+    }
     
     setIsGenerating(true);
     
     // Simulate diagram generation
     setTimeout(() => {
-      const diagramData = {
-        type: diagramType,
-        input: inputText,
-        elements: parseTextToElements(inputText, diagramType),
-        timestamp: new Date().toISOString()
-      };
-      
-      setGeneratedDiagram(diagramData);
-      setIsGenerating(false);
+      try {
+        const elements = parseTextToElements(inputText, diagramType);
+        
+        if (elements.length === 0) {
+          alert('No valid elements found in the text. Please use "→" or "->" to connect elements.');
+          setIsGenerating(false);
+          return;
+        }
+        
+        const diagramData = {
+          type: diagramType,
+          input: inputText,
+          elements: elements,
+          timestamp: new Date().toISOString()
+        };
+        
+        setGeneratedDiagram(diagramData);
+      } catch (error) {
+        console.error('Error generating diagram:', error);
+        alert('Error generating diagram. Please check your input text format.');
+      } finally {
+        setIsGenerating(false);
+      }
     }, 2000);
   };
 
   const parseTextToElements = (text, type) => {
     // Simple text parsing for demonstration
     const elements = text.split(/\s*→\s*|\s*->\s*|\s*\n\s*/).filter(item => item.trim());
+    
+    if (elements.length === 0) {
+      throw new Error('No valid elements found');
+    }
+    
     return elements.map((element, index) => ({
       id: index + 1,
       text: element.trim(),
-      type: getNode(type, index),
+      type: getNode(type, index, elements),
       position: calculatePosition(index, elements.length, type)
     }));
   };
 
-  const getNode = (diagramType, index) => {
+  const getNode = (diagramType, index, elements) => {
     const nodeTypes = {
-      flowchart: index === 0 ? 'start' : index === parseTextToElements(inputText, diagramType).length - 1 ? 'end' : 'process',
+      flowchart: index === 0 ? 'start' : index === elements.length - 1 ? 'end' : 'process',
       block: 'block',
       mindmap: index === 0 ? 'root' : 'node',
       sequence: index % 2 === 0 ? 'actor' : 'system',
@@ -70,12 +92,12 @@ const TextToDiagrams = () => {
 
   const calculatePosition = (index, total, type) => {
     const positions = {
-      flowchart: { x: 100 + (index * 150), y: 200 },
-      block: { x: 100 + (index * 120), y: 150 },
-      mindmap: { x: 200 + (index * 100), y: 100 + (index % 2) * 100 },
-      sequence: { x: 100 + (index * 100), y: 150 + (index % 2) * 50 },
-      orgchart: { x: 200 + (index % 3) * 150, y: 100 + Math.floor(index / 3) * 100 },
-      network: { x: 100 + (index % 2) * 200, y: 100 + Math.floor(index / 2) * 150 }
+      flowchart: { x: 50 + (index * 180), y: 200 },
+      block: { x: 50 + (index * 150), y: 150 },
+      mindmap: { x: 200 + (index * 120), y: 100 + (index % 2) * 100 },
+      sequence: { x: 100 + (index * 120), y: 150 + (index % 2) * 50 },
+      orgchart: { x: 200 + (index % 3) * 180, y: 100 + Math.floor(index / 3) * 120 },
+      network: { x: 100 + (index % 2) * 250, y: 100 + Math.floor(index / 2) * 150 }
     };
     return positions[type] || { x: 100, y: 100 };
   };
@@ -92,7 +114,121 @@ const TextToDiagrams = () => {
   const exportDiagram = () => {
     if (!generatedDiagram) return;
     
-    // Create a simple text representation for export
+    if (generatedDiagram.type === 'flowchart') {
+      exportToPDF();
+    } else {
+      // For other diagram types, export as text
+      exportAsText();
+    }
+  };
+
+  const exportToPDF = () => {
+    if (!generatedDiagram) return;
+    
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    
+    // Generate HTML content for the flowchart
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Flowchart - ${generatedDiagram.input}</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            text-align: center;
+            background: white;
+          }
+          .flowchart-container { 
+            display: inline-block; 
+            padding: 20px; 
+            border: 2px solid #ccc; 
+            border-radius: 10px;
+            background: #f9f9f9;
+          }
+          .flowchart-title { 
+            font-size: 24px; 
+            font-weight: bold; 
+            margin-bottom: 20px;
+            color: #333;
+          }
+          .flowchart-svg { 
+            border: 1px solid #ddd; 
+            background: white;
+            border-radius: 8px;
+          }
+          .elements-list { 
+            margin-top: 20px; 
+            text-align: left;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+          }
+          .element-item { 
+            margin: 5px 0; 
+            padding: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+          }
+          @media print {
+            body { margin: 0; }
+            .flowchart-container { border: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="flowchart-container">
+          <div class="flowchart-title">Flowchart Diagram</div>
+          <div class="flowchart-svg">
+            ${generateSVGHTML()}
+          </div>
+          <div class="elements-list">
+            <h3>Diagram Elements:</h3>
+            ${generatedDiagram.elements.map(el => 
+              `<div class="element-item"><strong>${el.id}.</strong> ${el.text} (${el.type})</div>`
+            ).join('')}
+          </div>
+        </div>
+        <script>
+          window.onload = function() {
+            setTimeout(() => {
+              window.print();
+              window.close();
+            }, 500);
+          };
+        </script>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
+  const generateSVGHTML = () => {
+    const svgElements = generatedDiagram.elements.map((element, index) => {
+      const rect = `<rect x="${element.position.x}" y="${element.position.y}" width="120" height="60" rx="8" fill="${getNodeColor(element.type)}" stroke="#1F2937" stroke-width="2"/>`;
+      const text = `<text x="${element.position.x + 60}" y="${element.position.y + 35}" text-anchor="middle" fill="white" font-size="14" font-weight="bold">${element.text}</text>`;
+      return rect + text;
+    }).join('');
+    
+    const connections = generatedDiagram.elements.map((element, index) => {
+      if (index === 0) return '';
+      const prevElement = generatedDiagram.elements[index - 1];
+      return `<line x1="${prevElement.position.x + 60}" y1="${prevElement.position.y + 30}" x2="${element.position.x + 60}" y2="${element.position.y + 30}" stroke="#4B5563" stroke-width="2" marker-end="url(#arrowhead)"/>`;
+    }).join('');
+    
+    const arrowDef = `<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4B5563"/></marker></defs>`;
+    
+    return `<svg width="1000" height="400" viewBox="0 0 1000 400">${arrowDef}${connections}${svgElements}</svg>`;
+  };
+
+  const exportAsText = () => {
+    if (!generatedDiagram) return;
+    
     const exportText = `Diagram Type: ${generatedDiagram.type}\nInput: ${generatedDiagram.input}\nElements:\n${generatedDiagram.elements.map(el => `- ${el.text}`).join('\n')}`;
     
     const blob = new Blob([exportText], { type: 'text/plain' });
@@ -192,7 +328,7 @@ const TextToDiagrams = () => {
                   onClick={exportDiagram}
                   className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl text-lg transition-colors"
                 >
-                  📥 Export
+                  📥 {generatedDiagram.type === 'flowchart' ? 'Download as PDF' : 'Export as Text'}
                 </button>
               </div>
               
@@ -203,59 +339,73 @@ const TextToDiagrams = () => {
                 </div>
                 
                 {/* Visual Diagram Representation */}
-                <div className="bg-gray-50 rounded-2xl p-8 mb-6 min-h-96 relative">
-                  <svg className="w-full h-full" viewBox="0 0 800 400">
-                    {/* Draw connections */}
-                    {generatedDiagram.elements.map((element, index) => {
-                      if (index === 0) return null;
-                      const prevElement = generatedDiagram.elements[index - 1];
-                      return (
-                        <line
-                          key={`line-${index}`}
-                          x1={prevElement.position.x + 60}
-                          y1={prevElement.position.y + 30}
-                          x2={element.position.x + 60}
-                          y2={element.position.y + 30}
-                          stroke="#4B5563"
-                          strokeWidth="2"
-                          markerEnd="url(#arrowhead)"
-                        />
-                      );
-                    })}
-                    
-                    {/* Arrow marker definition */}
-                    <defs>
-                      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" fill="#4B5563" />
-                      </marker>
-                    </defs>
-                    
-                    {/* Draw nodes */}
-                    {generatedDiagram.elements.map((element, index) => (
-                      <g key={element.id}>
-                        <rect
-                          x={element.position.x}
-                          y={element.position.y}
-                          width="120"
-                          height="60"
-                          rx="8"
-                          fill={getNodeColor(element.type)}
-                          stroke="#1F2937"
-                          strokeWidth="2"
-                        />
-                        <text
-                          x={element.position.x + 60}
-                          y={element.position.y + 35}
-                          textAnchor="middle"
-                          fill="white"
-                          fontSize="14"
-                          fontWeight="bold"
-                        >
-                          {element.text.length > 15 ? element.text.substring(0, 15) + '...' : element.text}
-                        </text>
-                      </g>
-                    ))}
-                  </svg>
+                <div className="bg-gray-50 rounded-2xl p-8 mb-6">
+                  <div className="mb-4 flex justify-between items-center">
+                    <h5 className="text-lg font-semibold text-gray-700">Flowchart Diagram</h5>
+                    <div className="text-sm text-gray-500">
+                      💡 Use scroll bars to view large diagrams
+                    </div>
+                  </div>
+                  <div className="border-2 border-gray-300 rounded-lg overflow-auto bg-white" style={{maxHeight: '500px', maxWidth: '100%'}}>
+                    <div className="min-w-max">
+                      <svg width="1000" height="400" viewBox="0 0 1000 400" style={{minWidth: '1000px'}}>
+                        {/* Define arrow marker */}
+                        <defs>
+                          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4B5563" />
+                          </marker>
+                        </defs>
+                        
+                        {/* Draw connections */}
+                        {generatedDiagram.elements.map((element, index) => {
+                          if (index === 0) return null;
+                          const prevElement = generatedDiagram.elements[index - 1];
+                          return (
+                            <line
+                              key={`line-${index}`}
+                              x1={prevElement.position.x + 60}
+                              y1={prevElement.position.y + 30}
+                              x2={element.position.x + 60}
+                              y2={element.position.y + 30}
+                              stroke="#4B5563"
+                              strokeWidth="2"
+                              markerEnd="url(#arrowhead)"
+                            />
+                          );
+                        })}
+                        
+                        {/* Draw nodes */}
+                        {generatedDiagram.elements.map((element, index) => (
+                          <g key={element.id}>
+                            <rect
+                              x={element.position.x}
+                              y={element.position.y}
+                              width="120"
+                              height="60"
+                              rx="8"
+                              fill={getNodeColor(element.type)}
+                              stroke="#1F2937"
+                              strokeWidth="2"
+                            />
+                            <text
+                              x={element.position.x + 60}
+                              y={element.position.y + 35}
+                              textAnchor="middle"
+                              fill="white"
+                              fontSize="14"
+                              fontWeight="bold"
+                            >
+                              {element.text.length > 15 ? element.text.substring(0, 12) + '...' : element.text}
+                            </text>
+                          </g>
+                        ))}
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex justify-between text-sm text-gray-600">
+                    <span>📏 Diagram Width: 1000px</span>
+                    <span>🔄 Scroll horizontally to view complete diagram</span>
+                  </div>
                 </div>
                 
                 {/* Elements List */}
