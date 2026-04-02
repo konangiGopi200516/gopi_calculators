@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 
 const AgeCalculator = () => {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
   const [birthDate, setBirthDate] = useState('');
   const [currentDate, setCurrentDate] = useState('');
   const [result, setResult] = useState(null);
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-  };
 
   const calculateAge = () => {
     if (!birthDate || !currentDate) return;
@@ -68,40 +62,18 @@ const AgeCalculator = () => {
       <div className="max-w-6xl mx-auto">
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-12">
           <div className="flex justify-between items-center mb-12">
-            <h2 className="text-5xl font-bold text-white">{t('ageCalculator.title')}</h2>
-            <div className="flex items-center gap-4">
-              <div className="flex bg-white/20 rounded-lg p-2">
-                <button
-                  onClick={() => changeLanguage('en')}
-                  className={`px-4 py-2 rounded ${i18n.language === 'en' ? 'bg-white text-green-800' : 'text-white hover:bg-white/10'} transition-colors text-lg font-medium`}
-                >
-                  EN
-                </button>
-                <button
-                  onClick={() => changeLanguage('hi')}
-                  className={`px-4 py-2 rounded ${i18n.language === 'hi' ? 'bg-white text-green-800' : 'text-white hover:bg-white/10'} transition-colors text-lg font-medium`}
-                >
-                  हिं
-                </button>
-                <button
-                  onClick={() => changeLanguage('te')}
-                  className={`px-4 py-2 rounded ${i18n.language === 'te' ? 'bg-white text-green-800' : 'text-white hover:bg-white/10'} transition-colors text-lg font-medium`}
-                >
-                  తె
-                </button>
-              </div>
-              <button
-                onClick={() => navigate('/')}
-                className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-xl transition-colors text-xl"
-              >
-                ✕ {t('ageCalculator.close')}
-              </button>
-            </div>
+            <h2 className="text-5xl font-bold text-white">Age Calculator</h2>
+            <button
+              onClick={() => navigate('/')}
+              className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-xl transition-colors text-xl"
+            >
+              ✕ Close
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
             <div className="bg-white/10 rounded-2xl p-8">
-              <label className="block text-white text-2xl font-bold mb-4">{t('ageCalculator.birthDate')}</label>
+              <label className="block text-white text-2xl font-bold mb-4">Birth Date</label>
               <input
                 type="date"
                 value={birthDate}
@@ -111,7 +83,7 @@ const AgeCalculator = () => {
             </div>
 
             <div className="bg-white/10 rounded-2xl p-8">
-              <label className="block text-white text-2xl font-bold mb-4">{t('ageCalculator.currentDate')}</label>
+              <label className="block text-white text-2xl font-bold mb-4">Current Date</label>
               <input
                 type="date"
                 value={currentDate}
@@ -126,55 +98,55 @@ const AgeCalculator = () => {
               onClick={calculateAge}
               className="flex-1 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-8 rounded-2xl text-4xl transition-all transform hover:scale-105"
             >
-              {t('ageCalculator.calculateAge')}
+              Calculate Age
             </button>
             <button
               onClick={clearForm}
               className="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-bold py-8 rounded-2xl text-4xl transition-all transform hover:scale-105"
             >
-              {t('ageCalculator.clear')}
+              Clear
             </button>
           </div>
 
           {result && (
             <div className="bg-white/10 rounded-3xl p-12">
-              <h3 className="text-4xl font-bold text-white mb-10 text-center">{t('ageCalculator.yourAge')}</h3>
+              <h3 className="text-4xl font-bold text-white mb-10 text-center">Your Age</h3>
               
               <div className="bg-white rounded-3xl p-10 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                   <div className="text-center">
                     <div className="text-6xl font-bold text-green-600 mb-2">{result.years}</div>
-                    <div className="text-xl text-gray-600">{t('ageCalculator.years')}</div>
+                    <div className="text-xl text-gray-600">Years</div>
                   </div>
                   <div className="text-center">
                     <div className="text-6xl font-bold text-blue-600 mb-2">{result.months}</div>
-                    <div className="text-xl text-gray-600">{t('ageCalculator.months')}</div>
+                    <div className="text-xl text-gray-600">Months</div>
                   </div>
                   <div className="text-center">
                     <div className="text-6xl font-bold text-purple-600 mb-2">{result.days}</div>
-                    <div className="text-xl text-gray-600">{t('ageCalculator.days')}</div>
+                    <div className="text-xl text-gray-600">Days</div>
                   </div>
                 </div>
               </div>
 
               <div className="bg-white rounded-3xl p-10">
-                <h4 className="text-2xl font-bold text-gray-800 mb-6 text-center">{t('ageCalculator.totalTime')}</h4>
+                <h4 className="text-2xl font-bold text-gray-800 mb-6 text-center">Total Time</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="text-center">
                     <div className="text-4xl font-bold text-orange-600 mb-2">{result.totalWeeks}</div>
-                    <div className="text-lg text-gray-600">{t('ageCalculator.weeks')}</div>
+                    <div className="text-lg text-gray-600">Weeks</div>
                   </div>
                   <div className="text-center">
                     <div className="text-4xl font-bold text-red-600 mb-2">{result.totalDays}</div>
-                    <div className="text-lg text-gray-600">{t('ageCalculator.days')}</div>
+                    <div className="text-lg text-gray-600">Days</div>
                   </div>
                   <div className="text-center">
                     <div className="text-4xl font-bold text-indigo-600 mb-2">{result.totalHours.toLocaleString()}</div>
-                    <div className="text-lg text-gray-600">{t('ageCalculator.hours')}</div>
+                    <div className="text-lg text-gray-600">Hours</div>
                   </div>
                   <div className="text-center">
                     <div className="text-4xl font-bold text-pink-600 mb-2">{result.totalMinutes.toLocaleString()}</div>
-                    <div className="text-lg text-gray-600">{t('ageCalculator.minutes')}</div>
+                    <div className="text-lg text-gray-600">Minutes</div>
                   </div>
                 </div>
               </div>

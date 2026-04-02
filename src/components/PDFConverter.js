@@ -1,19 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 
 const PDFConverter = () => {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
   const [selectedFile, setSelectedFile] = useState(null);
   const [conversionType, setConversionType] = useState(null);
   const [isConverting, setIsConverting] = useState(false);
   const [convertedFile, setConvertedFile] = useState(null);
   const fileInputRef = useRef(null);
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-  };
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];

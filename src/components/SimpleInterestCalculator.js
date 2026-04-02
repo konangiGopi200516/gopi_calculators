@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 
 const SimpleInterestCalculator = () => {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
   const [principal, setPrincipal] = useState('');
   const [rate, setRate] = useState('');
   const [time, setTime] = useState('');
@@ -23,10 +21,6 @@ const SimpleInterestCalculator = () => {
       setTime(years.toFixed(2));
     }
   }, [fromDate, toDate]);
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-  };
 
   const calculateInterest = () => {
     const p = parseFloat(principal);
@@ -82,45 +76,23 @@ const SimpleInterestCalculator = () => {
       <div className="max-w-6xl mx-auto">
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-12">
           <div className="flex justify-between items-center mb-12">
-            <h2 className="text-5xl font-bold text-white">{t('interestCalculator.title')}</h2>
-            <div className="flex items-center gap-4">
-              <div className="flex bg-white/20 rounded-lg p-2">
-                <button
-                  onClick={() => changeLanguage('en')}
-                  className={`px-4 py-2 rounded ${i18n.language === 'en' ? 'bg-white text-orange-800' : 'text-white hover:bg-white/10'} transition-colors text-lg font-medium`}
-                >
-                  EN
-                </button>
-                <button
-                  onClick={() => changeLanguage('hi')}
-                  className={`px-4 py-2 rounded ${i18n.language === 'hi' ? 'bg-white text-orange-800' : 'text-white hover:bg-white/10'} transition-colors text-lg font-medium`}
-                >
-                  हिं
-                </button>
-                <button
-                  onClick={() => changeLanguage('te')}
-                  className={`px-4 py-2 rounded ${i18n.language === 'te' ? 'bg-white text-orange-800' : 'text-white hover:bg-white/10'} transition-colors text-lg font-medium`}
-                >
-                  తె
-                </button>
-              </div>
-              <button
-                onClick={() => navigate('/')}
-                className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-xl transition-colors text-xl"
-              >
-                ✕ {t('interestCalculator.close')}
-              </button>
-            </div>
+            <h2 className="text-5xl font-bold text-white">Compound Interest Calculator</h2>
+            <button
+              onClick={() => navigate('/')}
+              className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-xl transition-colors text-xl"
+            >
+              ✕ Close
+            </button>
           </div>
 
           <div className="space-y-8 mb-10">
             <div>
-              <label className="block text-white text-lg font-semibold mb-4">{t('interestCalculator.principalAmount')}</label>
+              <label className="block text-white text-lg font-semibold mb-4">Principal Amount (₹)</label>
               <input
                 type="number"
                 value={principal}
                 onChange={(e) => setPrincipal(e.target.value)}
-                placeholder={t('interestCalculator.principalPlaceholder')}
+                placeholder="Enter principal amount"
                 className="w-full px-6 py-4 rounded-xl text-2xl bg-white/20 text-white placeholder-white/50 border-4 border-white/30 focus:outline-none focus:border-white"
               />
             </div>
@@ -152,7 +124,7 @@ const SimpleInterestCalculator = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <label className="block text-white text-lg font-semibold mb-4">{t('interestCalculator.moneyGivenDate')}</label>
+                <label className="block text-white text-lg font-semibold mb-4">Money Given Date</label>
                 <input
                   type="date"
                   value={fromDate}
@@ -162,7 +134,7 @@ const SimpleInterestCalculator = () => {
               </div>
 
               <div>
-                <label className="block text-white text-lg font-semibold mb-4">{t('interestCalculator.moneyReceivedDate')}</label>
+                <label className="block text-white text-lg font-semibold mb-4">Money Received Date</label>
                 <input
                   type="date"
                   value={toDate}
@@ -173,7 +145,7 @@ const SimpleInterestCalculator = () => {
             </div>
 
             <div>
-              <label className="block text-white text-lg font-semibold mb-4">{t('interestCalculator.timePeriod')}</label>
+              <label className="block text-white text-lg font-semibold mb-4">Time Period (years)</label>
               <input
                 type="number"
                 value={time}
@@ -184,9 +156,7 @@ const SimpleInterestCalculator = () => {
                 className="w-full px-6 py-4 rounded-xl text-2xl bg-white/20 text-white placeholder-white/50 border-4 border-white/30 focus:outline-none focus:border-white read-only:bg-white/10"
               />
               {fromDate && toDate && (
-                <p className="text-white/60 text-lg mt-2">
-                  {t('interestCalculator.calculatedFromDates')}
-                </p>
+                <p className="text-white/60 text-lg mt-2">Calculated from dates</p>
               )}
             </div>
 
@@ -195,25 +165,25 @@ const SimpleInterestCalculator = () => {
                 onClick={calculateInterest}
                 className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-6 rounded-2xl text-3xl transition-all transform hover:scale-105"
               >
-                {t('interestCalculator.calculate')}
+                Calculate
               </button>
               <button
                 onClick={clearForm}
                 className="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-bold py-6 rounded-2xl text-3xl transition-all transform hover:scale-105"
               >
-                {t('interestCalculator.clear')}
+                Clear
               </button>
             </div>
           </div>
 
           {result && (
             <div className="mt-12 bg-white/10 rounded-3xl p-10">
-              <h3 className="text-3xl font-bold text-white mb-10 text-center">{t('interestCalculator.results')}</h3>
+              <h3 className="text-3xl font-bold text-white mb-10 text-center">Calculation Results</h3>
               
               <div className="bg-white rounded-3xl p-10 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <div className="text-gray-600 text-lg mb-3">{t('interestCalculator.principal')}</div>
+                    <div className="text-gray-600 text-lg mb-3">Principal</div>
                     <div className="text-4xl font-bold text-gray-800">₹{result.principal.toLocaleString('en-IN')}</div>
                   </div>
                   
@@ -223,7 +193,7 @@ const SimpleInterestCalculator = () => {
                   </div>
                   
                   <div>
-                    <div className="text-gray-600 text-lg mb-3">{t('interestCalculator.time')}</div>
+                    <div className="text-gray-600 text-lg mb-3">Time</div>
                     <div className="text-4xl font-bold text-gray-800">{result.time} years</div>
                   </div>
                   
@@ -237,12 +207,12 @@ const SimpleInterestCalculator = () => {
               <div className="bg-white rounded-3xl p-10 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <div className="text-gray-600 text-lg mb-3">{t('interestCalculator.totalInterest')}</div>
+                    <div className="text-gray-600 text-lg mb-3">Total Interest</div>
                     <div className="text-4xl font-bold text-green-600">₹{result.interest.toLocaleString('en-IN')}</div>
                   </div>
                   
                   <div>
-                    <div className="text-gray-600 text-lg mb-3">{t('interestCalculator.finalAmount')}</div>
+                    <div className="text-gray-600 text-lg mb-3">Final Amount</div>
                     <div className="text-4xl font-bold text-blue-600">₹{result.total.toLocaleString('en-IN')}</div>
                   </div>
                 </div>
@@ -252,7 +222,7 @@ const SimpleInterestCalculator = () => {
                 <div className="text-center">
                   <div className="text-white/80 text-lg mb-4">{result.type === 'simple' ? 'Simple Interest' : 'Compound Interest'}</div>
                   <div className="text-6xl font-bold">₹{result.interest.toLocaleString('en-IN')}</div>
-                  <div className="text-white/80 text-lg mt-4">{t('interestCalculator.finalAmount')}: ₹{result.total.toLocaleString('en-IN')}</div>
+                  <div className="text-white/80 text-lg mt-4">Final Amount: ₹{result.total.toLocaleString('en-IN')}</div>
                   {result.type === 'compound' && (
                     <div className="text-white/80 text-lg mt-2">
                       Formula: A = P(1 + r)^{result.totalMonths}
